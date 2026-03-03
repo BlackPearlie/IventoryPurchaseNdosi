@@ -21,6 +21,22 @@ public class PurchaseTest  extends BaseTest {
         inventoryPage.clickMaterials();
         inventoryPage.clickWebAdvance();
         inventoryPage.verifyInventoryForm("Inventory Form");
+
+        // Populate the inventory form with the required details and submit the form
+        // Verify that the grid exists and is visible on the page
+        inventoryPage.selectedDeviceOption();
+        inventoryPage.verifyInventoryGrid();
+        inventoryPage.selectedBrand();
+        inventoryPage.selectedStorageOption();
+        inventoryPage.setSelectedColor();
+        inventoryPage.setProductQuantity(2);
+        inventoryPage.setInputAddress("123 Test Street");
+        inventoryPage.clickNextButton();
+        inventoryPage.selectShippingOption();
+        inventoryPage.selectWarrantyOption();
+
+
+
     }
 
 
