@@ -34,8 +34,10 @@ public class PurchaseTest  extends BaseTest {
         inventoryPage.clickNextButton();
         inventoryPage.selectShippingOption();
         inventoryPage.selectWarrantyOption();
-
-
+        inventoryPage.captureDiscountCode("SAVE10");
+        inventoryPage.clickApplyDiscountButton();
+        inventoryPage.calculateDiscountedTotal();
+        inventoryPage.confirmPurchase();
 
     }
 

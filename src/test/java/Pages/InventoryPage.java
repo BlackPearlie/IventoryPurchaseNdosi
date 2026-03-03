@@ -1,5 +1,6 @@
 package Pages;
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -7,7 +8,11 @@ import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
+
 import java.time.Duration;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 
 public class InventoryPage {
     WebDriver driver;
@@ -145,14 +150,15 @@ public class InventoryPage {
         WebElement quantityField;
         @FindBy(id = "subtotal-value")
         WebElement subTotalPriceValue;
-        public void setProductQuantity(int quantity) {
+    String subTotalPriceText;
+    public void setProductQuantity(int quantity) {
             wait.until(ExpectedConditions.visibilityOf(quantityField));
             quantityField.clear();
             quantityField.sendKeys(String.valueOf(quantity));
             System.out.println("Product quantity set to: " + quantity); // Debugging line
             // get subtotal value
             wait.until(ExpectedConditions.visibilityOf(subTotalPriceValue));
-            String subTotalPriceText = subTotalPriceValue.getText();
+             subTotalPriceText = subTotalPriceValue.getText();
             System.out.println("Subtotal price value: " + subTotalPriceText); // Debugging
             if (!subTotalPriceText.equals("R960.00")) {
                 throw new AssertionError("Expected subtotal price: R960.00, but got: "+subTotalPriceText);
@@ -196,6 +202,7 @@ public class InventoryPage {
     WebElement expressShippingOption;
     @FindBy(id ="breakdown-shipping-value")
     WebElement shippingCostValue;
+    String shippingCostText;
     public void selectShippingOption() {
         wait.until(ExpectedConditions.visibilityOf(expressShippingOption));
         System.out.println("Express shipping option is visible.");
@@ -205,7 +212,7 @@ public class InventoryPage {
         System.out.println("Express shipping option is selected.");
         // verify cost value for express shipping
         wait.until(ExpectedConditions.visibilityOf(shippingCostValue));
-        String shippingCostText = shippingCostValue.getText();
+         shippingCostText = shippingCostValue.getText();
         System.out.println("Shipping cost value: " + shippingCostText); // Debugging line
         if (!shippingCostText.equals("R25.00")) {
             throw new AssertionError("Expected shipping cost: R25.00, but got: " + shippingCostText);
@@ -216,6 +223,7 @@ public class InventoryPage {
 
     @FindBy(id = "breakdown-warranty-value")
    WebElement warrantyCostValue;
+    String warrantyCostText;
         public void selectWarrantyOption () {
             wait.until(ExpectedConditions.visibilityOf(warrantyOption));
             System.out.println("Express shipping option is visible.");
@@ -224,7 +232,7 @@ public class InventoryPage {
 
                     //verify cost value for 1-year warranty
                     wait.until(ExpectedConditions.visibilityOf(warrantyCostValue));
-                    String warrantyCostText = warrantyCostValue.getText();
+                     warrantyCostText = warrantyCostValue.getText();
                     System.out.println("Warranty cost value: " + warrantyCostText); // Debugging line
                     if (!warrantyCostText.equals("R49.00")) {
                         throw new AssertionError("Expected warranty cost: R49.00, but got: " + warrantyCostText);
@@ -235,6 +243,61 @@ public class InventoryPage {
 
     @FindBy(id="discount-code")
     WebElement discountCodeField;
+
+        public void captureDiscountCode(String discountCode) {
+            wait.until(ExpectedConditions.visibilityOf(discountCodeField));
+            discountCodeField.sendKeys(discountCode);
+            System.out.println("Discount code entered: " + discountCode); // Debugging line
+
+        }
+
+   @FindBy(id="apply-discount-btn")
+   WebElement applyDiscountButton;
+        public void clickApplyDiscountButton() {
+            wait.until(ExpectedConditions.elementToBeClickable(applyDiscountButton)).click();
+            System.out.println("Apply discount button clicked."); // Debugging line
+        }
+
+        public void verifyDiscountApplied(String expectedDiscountedTotal) {
+            WebElement discountedTotalValue = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("breakdown-total-value")));
+            String actualDiscountedTotal = discountedTotalValue.getText();
+            System.out.println("Discounted total value: " + actualDiscountedTotal); // Debugging line
+            if (!actualDiscountedTotal.equals(expectedDiscountedTotal)) {
+                throw new AssertionError("Expected discounted total: " + expectedDiscountedTotal + ", but got: " + actualDiscountedTotal);
+            }
+        }
+
+        public void calculateDiscountedTotal() {
+            // Assuming the discount is 10% for the "SAVE10" code
+            double subTotal = Double.parseDouble(subTotalPriceText.replace("R", "").replace(",", ""));
+            double shippingCost = Double.parseDouble(shippingCostText.replace("R", "").replace(",", ""));
+            double warrantyCost = Double.parseDouble(warrantyCostText.replace("R", "").replace(",", ""));
+            double totalBeforeDiscount = subTotal + shippingCost + warrantyCost;
+            double discountAmount = totalBeforeDiscount * 0.10; // 10% discount
+            double expectedDiscountedTotal = totalBeforeDiscount - discountAmount;
+            // 1. Create a symbol object to change the decimal separator to a comma
+            DecimalFormatSymbols symbols = new DecimalFormatSymbols();
+            symbols.setDecimalSeparator('.'); // Sets dot instead of comma
+            symbols.setGroupingSeparator(' '); // Optional: sets space for thousands
+
+            // 2. Create the formatter with your specific "R" pattern
+            DecimalFormat df = new DecimalFormat("R#,##0.00", symbols);
+            // 3. Format the double
+            String formattedDiscountValue = df.format(expectedDiscountedTotal);
+            verifyDiscountApplied(formattedDiscountValue);
+        }
+
+        //confirm purchase and verify confirmation message
+        @FindBy(id="purchase-device-btn")
+        WebElement purchaseButton;
+        @FindBy(xpath = "//*[@id=\"purchase-success-toast\"]/p[1]")
+        WebElement confirmationMessage;
+        public void confirmPurchase() {
+            wait.until(ExpectedConditions.elementToBeClickable(purchaseButton)).click();
+            System.out.println("Confirm Purchase button clicked."); // Debugging line
+            String confirmationMessageText = wait.until(ExpectedConditions.visibilityOf(confirmationMessage)).getText();
+            String expectedConfirmationMessage = "Mpho, your order was purchased successfully!";
+            Assert.assertEquals(expectedConfirmationMessage, confirmationMessageText);        }
 }
 
 
