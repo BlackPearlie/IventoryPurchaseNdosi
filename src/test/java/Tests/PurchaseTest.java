@@ -39,6 +39,10 @@ public class PurchaseTest  extends BaseTest {
         inventoryPage.calculateDiscountedTotal();
         inventoryPage.confirmPurchase();
 
+        // call the method to verify the invoice details
+        invoicePage.clickViewInvoiceButton();
+        invoicePage.verifyInvoiceHistoryPanel();
+        invoicePage.clickViewInvoiceSummary();
     }
 
 

@@ -39,7 +39,7 @@ public class InventoryPage {
     }
 
     public void clickMaterials() {
-        wait.until(ExpectedConditions.elementToBeClickable(learningMaterials)).click();
+        wait.until(ExpectedConditions.visibilityOf(learningMaterials)).click();
     }
 
     public void clickWebAdvance() {
