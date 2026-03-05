@@ -31,6 +31,8 @@ public class PurchaseTest  extends BaseTest {
         inventoryPage.setSelectedColor();
         inventoryPage.setProductQuantity(2);
         inventoryPage.setInputAddress("123 Test Street");
+
+
         inventoryPage.clickNextButton();
         inventoryPage.selectShippingOption();
         inventoryPage.selectWarrantyOption();

@@ -5,7 +5,6 @@ import Pages.InvoicePage;
 import Pages.LoginPage;
 import Utilities.BrowserFactory;
 import org.openqa.selenium.WebDriver;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 
 public class BaseTest {
@@ -23,6 +22,7 @@ public class BaseTest {
         loginPage = new LoginPage(driver);
         inventoryPage = new InventoryPage(driver);
         invoicePage = new InvoicePage(driver);
+
     }
 
    // @AfterMethod
